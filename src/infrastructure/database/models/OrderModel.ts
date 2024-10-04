@@ -1,21 +1,39 @@
-import mongoose, { Schema, Document } from "mongoose";
-import { UserOrder } from "../../../domain/entities/OrderBuilder";
+import mongoose, { Schema, Document, Types } from "mongoose";
+export interface Product {
+  product_id: number;
+  value: string;
+}
 
-interface UserOrderDocument extends UserOrder, Document {}
+export interface Order {
+  order_id: number;
+  total: string;
+  date: Date;
+  products: Product[];
+}
 
-const ProductSchema = new Schema({
+export interface UserOrder {
+  user_id: number;
+  name: string;
+  orders: Order[];
+}
+
+export type UserOrderDocument = UserOrder & Document<Types.ObjectId>;
+export type OrderDocument = Order & Document<Types.ObjectId>;
+export type ProductDocument = Product & Document<Types.ObjectId>;
+
+const ProductSchema = new Schema<ProductDocument>({
   product_id: { type: Number, required: true },
   value: { type: String, required: true },
 });
 
-const OrderSchema = new Schema({
+const OrderSchema = new Schema<OrderDocument>({
   order_id: { type: Number, required: true },
   total: { type: String, required: true },
   date: { type: Date, required: true },
   products: [ProductSchema],
 });
 
-const UserOrderSchema = new Schema({
+const UserOrderSchema = new Schema<UserOrderDocument>({
   user_id: { type: Number, required: true, unique: true },
   name: { type: String, required: true },
   orders: [OrderSchema],

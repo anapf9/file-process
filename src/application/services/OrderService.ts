@@ -1,11 +1,10 @@
 import { Inject } from "typescript-ioc";
 import { OrderRepository } from "../../infrastructure/repository/OrderRepository";
-import { UserOrder } from "../../domain/entities/OrderBuilder";
+import { Order, UserOrder } from "../../domain/entities/OrderBuilder";
 import { QueryStringRequestDTO } from "../controllers/OrderController";
+import { log } from "node:console";
 
 export class OrderService {
-  //private readonly orderRepository: OrderRepository =
-  //  Container.get(OrderRepository);
   constructor(
     @Inject
     private readonly orderRepository: OrderRepository
@@ -18,7 +17,30 @@ export class OrderService {
       filters.order_id !== undefined
     ) {
       if (filters.order_id && filters.order_id.length > 0) {
-        return this.orderRepository.findOrderID(Number(filters.order_id));
+        const usersOrdersFound = await this.orderRepository.findOrderID(
+          Number(filters.order_id)
+        );
+
+        const resultFilter: UserOrder[] = usersOrdersFound.map((userOrder) => {
+          const orders: Order[] = [];
+
+          userOrder.orders.forEach((order) => {
+            if (order.order_id === Number(filters.order_id)) {
+              console.log("match", order.order_id, order);
+
+              orders.push(order);
+            }
+          });
+
+          return {
+            ...userOrder,
+            orders,
+          };
+        });
+
+        console.log(JSON.stringify(resultFilter));
+
+        return resultFilter;
       }
 
       if (
@@ -27,7 +49,7 @@ export class OrderService {
         filters.last_date &&
         filters.last_date
       ) {
-        return this.orderRepository.findOrdersWithinDateRange(
+        return await this.orderRepository.findOrdersWithinDateRange(
           new Date(filters.init_date),
           new Date(filters.last_date)
         );
@@ -35,6 +57,6 @@ export class OrderService {
 
       console.log("fazer a validação correta dos dados via Joi");
     }
-    return this.orderRepository.findAll();
+    return await this.orderRepository.findAll();
   }
 }

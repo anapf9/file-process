@@ -1,6 +1,12 @@
-import { OrderModel } from "../database/models/OrderModel";
-import { UserOrder } from "../../domain/entities/OrderBuilder";
+import { OrderModel, UserOrderDocument } from "../database/models/OrderModel";
+import {
+  OrderBuilder,
+  ProductBuilder,
+  UserOrder,
+  UserOrderBuilder,
+} from "../../domain/entities/OrderBuilder";
 import { IOrderOperations } from "../../domain/interfaces/DBOperationsPort";
+import { Model } from "mongoose";
 
 export class OrderRepository implements IOrderOperations {
   async findByUserId(user_id: number): Promise<UserOrder | null> {
@@ -20,13 +26,17 @@ export class OrderRepository implements IOrderOperations {
   }
 
   async findAll(): Promise<UserOrder[]> {
-    return OrderModel.find().exec();
+    return await OrderModel.find().exec();
   }
 
   async findOrderID(order_id: number): Promise<UserOrder[]> {
     console.log("filters", order_id);
 
-    return OrderModel.find({ "orders.order_id": order_id }).exec();
+    const results = await OrderModel.find({
+      "orders.order_id": order_id,
+    }).exec();
+
+    return results.map((result) => this.mapperModelToDomain(result));
   }
 
   async findOrdersWithinDateRange(startDate: Date, endDate: Date) {
@@ -55,5 +65,28 @@ export class OrderRepository implements IOrderOperations {
     }
   }
 
-  //private mapperModelToDomain() {}
+  private mapperModelToDomain(model: UserOrderDocument): UserOrder {
+    const userMapped = new UserOrderBuilder()
+      .setUserId(model.user_id)
+      .setName(model.name);
+
+    model.orders.forEach((order) => userMapped.addOrder(order));
+
+    // const mapped = model.orders.map((order) => {
+    //   new OrderBuilder()
+    //     .setOrderId(order.order_id)
+    //     .setTotal(order.total)
+    //     .setDate(new Date(order.date))
+    //     .build();
+
+    //   order.products.forEach((product) =>
+    //     new ProductBuilder()
+    //       .setProductId(product.product_id)
+    //       .setValue(product.value)
+    //       .build()
+    //   );
+    // });
+
+    return userMapped.build();
+  }
 }
