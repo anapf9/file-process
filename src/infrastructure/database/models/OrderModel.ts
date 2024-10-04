@@ -4,14 +4,14 @@ import { UserOrder } from "../../../domain/entities/OrderBuilder";
 interface UserOrderDocument extends UserOrder, Document {}
 
 const ProductSchema = new Schema({
-  product_id: { type: Number, required: true, unique: true },
+  product_id: { type: Number, required: true },
   value: { type: String, required: true },
 });
 
 const OrderSchema = new Schema({
-  order_id: { type: Number, required: true, unique: true },
+  order_id: { type: Number, required: true },
   total: { type: String, required: true },
-  date: { type: String, required: true },
+  date: { type: Date, required: true },
   products: [ProductSchema],
 });
 

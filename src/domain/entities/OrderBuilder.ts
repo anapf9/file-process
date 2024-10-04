@@ -65,6 +65,11 @@ export class OrderBuilder {
     return this;
   }
 
+  addProducts(products: Product[]): this {
+    this.order.products = products;
+    return this;
+  }
+
   build(): Order {
     return this.order;
   }

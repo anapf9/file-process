@@ -65,31 +65,32 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
     existingUserOrder: UserOrder,
     newUserOrder: UserOrder
   ): UserOrder {
-    const existingUserOrderBuilder = new UserOrderBuilder()
+    const userOrderToUpdate = new UserOrderBuilder()
       .setUserId(existingUserOrder.user_id)
       .setName(existingUserOrder.name);
 
-    existingUserOrder.orders.forEach((order) =>
-      existingUserOrderBuilder.addOrder(order)
-    );
+    const updatedOrders = existingUserOrder.orders.map((order) => {
+      if (order.order_id === newUserOrder.orders[0].order_id) {
+        return this.handlerExistingOrder(newUserOrder.orders[0], order);
+      }
+      return order;
+    });
 
     const newOrder = newUserOrder.orders[0];
-    const existingOrderIndex = existingUserOrder.orders.findIndex(
+    const orderExists = updatedOrders.some(
       (order) => order.order_id === newOrder.order_id
     );
 
-    if (existingOrderIndex !== -1) {
-      const existingOrder = existingUserOrder.orders[existingOrderIndex];
-      this.handlerExistingOrder(newOrder, existingOrder);
-      existingUserOrder.orders[existingOrderIndex] = existingOrder;
-    } else {
-      existingUserOrderBuilder.addOrder(newOrder);
+    if (!orderExists) {
+      updatedOrders.push(newOrder);
     }
 
-    return existingUserOrderBuilder.build();
+    updatedOrders.forEach((order) => userOrderToUpdate.addOrder(order));
+
+    return userOrderToUpdate.build();
   }
 
-  private handlerExistingOrder(newOrder: Order, existingOrder: Order) {
+  private handlerExistingOrder(newOrder: Order, existingOrder: Order): Order {
     const newProduct = newOrder.products[0];
     const existingProduct = existingOrder.products.find(
       (product) => product.product_id === newProduct.product_id
@@ -99,14 +100,21 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
       console.warn(
         `Product already exists for product_id ${newProduct.product_id} of order ${newOrder.order_id}.`
       );
-      return;
+      return existingOrder;
     }
 
-    existingOrder.products.push(newProduct);
-    existingOrder.total = this.totalProductsOfOrder(
+    const updatedProducts = [...existingOrder.products, newProduct];
+    const updatedTotal = this.totalProductsOfOrder(
       existingOrder.total,
       newProduct.value
     );
+
+    return new OrderBuilder()
+      .setOrderId(existingOrder.order_id)
+      .setTotal(updatedTotal)
+      .setDate(existingOrder.date)
+      .addProducts(updatedProducts)
+      .build();
   }
 
   private totalProductsOfOrder(str1: string, str2: string): string {
