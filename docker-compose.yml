@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data-2:/data-2/db-2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: mydatabase
+
+  app:
+    image: node:20-bullseye-slim
+    container_name: node_app
+    working_dir: /bin/www
+    volumes:
+      - ./:/bin/www
+    ports:
+      - "3001:3001" # Altere a porta conforme necessário
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://admin:password123@mongo:27017/mydatabase?authSource=admin # Exemplo de variável de ambiente
+      PORT: 3001
+
+volumes:
+  mongo-data-2:
