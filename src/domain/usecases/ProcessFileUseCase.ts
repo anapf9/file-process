@@ -24,15 +24,8 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
 
       const newRegister = this.mapperToDomain(userOrder);
 
-      console.log("existingUserOrder", existingUserOrder);
-
       if (!existingUserOrder) {
-        console.log("nao existe", userOrder);
-
-        const salvo = await this.orderRepository.save(newRegister);
-
-        console.log("foi salvo", salvo);
-
+        await this.orderRepository.save(newRegister);
         return;
       }
 
@@ -40,8 +33,6 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
         existingUserOrder,
         newRegister
       );
-
-      console.log("ordem atualizada", updatedUserOrder.orders);
 
       await this.orderRepository.update(updatedUserOrder);
     } catch (error) {
@@ -78,78 +69,55 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
       .setUserId(existingUserOrder.user_id)
       .setName(existingUserOrder.name);
 
-    // existingUserOrder.orders.forEach((order) =>
-    //   existingUserOrderBuilder.addOrder(order)
-    // );
+    existingUserOrder.orders.forEach((order) =>
+      existingUserOrderBuilder.addOrder(order)
+    );
 
     const newOrder = newUserOrder.orders[0];
-    const existingOrder = existingUserOrder.orders.find(
+    const existingOrderIndex = existingUserOrder.orders.findIndex(
       (order) => order.order_id === newOrder.order_id
     );
 
-    if (existingOrder) {
-      console.log("existe a ordem", existingOrder);
-
-      this.handlerExistingOrder(
-        newOrder,
-        existingOrder,
-        existingUserOrderBuilder
-      );
+    if (existingOrderIndex !== -1) {
+      const existingOrder = existingUserOrder.orders[existingOrderIndex];
+      this.handlerExistingOrder(newOrder, existingOrder);
+      existingUserOrder.orders[existingOrderIndex] = existingOrder;
     } else {
-      console.log("adiciona a nova ordem", newOrder);
-
       existingUserOrderBuilder.addOrder(newOrder);
     }
 
     return existingUserOrderBuilder.build();
   }
 
-  private handlerExistingOrder(
-    newOrder: Order,
-    orderFounded: Order,
-    orderToBuild: UserOrderBuilder
-  ) {
+  private handlerExistingOrder(newOrder: Order, existingOrder: Order) {
     const newProduct = newOrder.products[0];
-    const existingProduct = orderFounded.products.find(
+    const existingProduct = existingOrder.products.find(
       (product) => product.product_id === newProduct.product_id
     );
 
     if (existingProduct) {
       console.warn(
-        `Product already exists for product_id ${newProduct.product_id} of order ${newOrder.order_id}. User: ${orderToBuild.getName} - ${orderToBuild.getUserId}`
+        `Product already exists for product_id ${newProduct.product_id} of order ${newOrder.order_id}.`
       );
-
       return;
     }
 
-    const updatedOrderBuilder = new OrderBuilder()
-      .setOrderId(orderFounded.order_id)
-      .setTotal(this.totalProductsOfOrder(orderFounded.total, newProduct.value))
-      .setDate(orderFounded.date);
-
-    orderFounded.products.forEach((product) =>
-      updatedOrderBuilder.addProduct(product)
+    existingOrder.products.push(newProduct);
+    existingOrder.total = this.totalProductsOfOrder(
+      existingOrder.total,
+      newProduct.value
     );
-
-    updatedOrderBuilder.addProduct(newProduct);
-
-    // Removendo a ordem antiga e adicionando a nova
-    orderToBuild.addOrder(updatedOrderBuilder.build());
   }
 
   private totalProductsOfOrder(str1: string, str2: string): string {
-    // Converte as strings para números
     const num1 = Number(str1);
     const num2 = Number(str2);
 
-    // Verifica se a conversão foi bem-sucedida
     if (isNaN(num1) || isNaN(num2)) {
       throw new Error("Uma ou ambas as entradas não são números válidos.");
     }
 
     const result = num1 + num2;
-
-    // Retorna a soma dos números
     return result.toString();
   }
 }

@@ -17,8 +17,6 @@ export class FileService {
   private readonly processFileUseCase: ProcessFileUseCase =
     Container.get(ProcessFileUseCase);
 
-  //constructor(private readonly processFileUseCase: IProcessFileUseCase) {}
-
   async processFile(filePath: string): Promise<void> {
     let contadorLinhas = 0;
 
@@ -37,8 +35,6 @@ export class FileService {
         product_id: parseInt(this.obterIdProduto(linha), 10),
         value: this.obterValorProduto(linha),
       };
-
-      // console.log("registro", registro);
 
       await this.processFileUseCase.execute(registro);
     }
