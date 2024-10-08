@@ -121,8 +121,8 @@ Atualmente, o projeto não possui testes unitários implementados. No entanto, �
 ## TODO:
 
 - Usar a biblioteca "class-validator" para validação dos query params do GET.
-- Fazer os testes unitários com a biblioteca jest
-- Usar o serveless framework para melhorar o fluxo de processamento do arquivo com uma lambda para processar cada linha do csv e enviar para um SQS com DLQ, e outra lambda para fazer a logica se consulta/criação/atualização no banco para garantir que todas as informações sejam processadas corretamente sem que a solicitação do documento seja sincrona.
+- Fazer os testes unitários com a biblioteca "jest"
+- Usar o "serveless" framework e o "localstack" para melhorar o fluxo de processamento do arquivo com uma lambda para processar cada linha do csv e enviar para um SQS com DLQ, e outra lambda para fazer a logica se consulta/criação/atualização no banco para garantir que todas as informações sejam processadas corretamente sem que a solicitação do documento seja sincrona.
 - Usar o desing pattern "strategy" para as possibilides de filtros.
 
 ## Conclusão
