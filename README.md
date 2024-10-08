@@ -21,7 +21,7 @@ Dessa forma subiremos apenas o container do docker, com o comando acima.
 Para executar a aplicação, utilize o comando:
 
 ```bash
-npm run start
+npm i && npm run start
 ```
 
 A aplicação estará disponível em `http://localhost:3001`.
