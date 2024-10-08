@@ -24,7 +24,11 @@ Para executar a aplicação, utilize o comando:
 npm i && npm run start
 ```
 
-A aplicação estará disponível em `http://localhost:3001`.
+A aplicação estará disponível em `http://localhost:3000`.
+
+3. **Registros no banco de dados**
+
+Para ver a collection salva no banco de dados é possivel usar um cliente de mongoDB como o `Nosqlbooster` e ao connectar no banco usar a seguinte URI: `mongodb://admin:password123@localhost:27017/mydatabase?authSource=admin`
 
 ## Arquitetura e Principios
 
@@ -46,10 +50,6 @@ A organização das pastas:
 - **Open/Closed Principle (OCP)**: As classes estão abertas para extensão, mas fechadas para modificação. Novas funcionalidades podem ser adicionadas sem alterar o código existente.
 - **Interface Segregation Principle (ISP)**: As interfaces são específicas e focadas. Por exemplo, `IProcessFileUseCase` define apenas o método necessário para processar arquivos.
 - **Dependency Inversion Principle (DIP)**: As dependências são injetadas, permitindo que as classes dependam de abstrações em vez de implementações concretas.
-
-## Falta de Testes Unitários
-
-Atualmente, o projeto não possui testes unitários implementados. No entanto, é será feito posteriormente para manter a qualidade e a confiabilidade do código.
 
 ## Realizando Requisições com Postman
 
@@ -121,7 +121,7 @@ Atualmente, o projeto não possui testes unitários implementados. No entanto, �
 ## TODO:
 
 - Usar a biblioteca "class-validator" para validação dos query params do GET.
-- Fazer os testes unitários com a biblioteca "jest"
+- Fazer os testes unitários com a biblioteca "jest". No entanto, é será feito posteriormente para manter a qualidade e a confiabilidade do código.
 - Usar o "serveless" framework e o "localstack" para melhorar o fluxo de processamento do arquivo com uma lambda para processar cada linha do csv e enviar para um SQS com DLQ, e outra lambda para fazer a logica se consulta/criação/atualização no banco para garantir que todas as informações sejam processadas corretamente sem que a solicitação do documento seja sincrona.
 - Usar o desing pattern "strategy" para as possibilides de filtros.
 
