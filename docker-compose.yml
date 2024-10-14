@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 
 services:
   mongo:
@@ -14,18 +14,20 @@ services:
       MONGO_INITDB_DATABASE: mydatabase
 
   app:
-    image: node:20-bullseye-slim
-    container_name: node_app
-    working_dir: /bin/www
-    volumes:
-      - ./:/bin/www
+    image: luiza-labs:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3001:3001" # Altere a porta conforme necessário
+      - "3001:3001"
+    environment:
+      MONGO_URI: mongodb://admin:password123@mongo:27017/mydatabase?authSource=admin
+      PORT: 3001
+    command: npm run start
+    volumes:
+      - .:/app
     depends_on:
       - mongo
-    environment:
-      MONGO_URI: mongodb://admin:password123@mongo:27017/mydatabase?authSource=admin # Exemplo de variável de ambiente
-      PORT: 3001
 
 volumes:
   mongo-data-2:

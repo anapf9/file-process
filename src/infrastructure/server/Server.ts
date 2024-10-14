@@ -10,13 +10,13 @@ server.register(multipart);
 server.register(fileRoutes);
 server.register(orderRoutes);
 
-//https://dev.to/lokosama/node-js-upload-binary-image-on-the-fly-with-fastify-and-cloudinary-5c1h
-//https://www.npmjs.com/package/fastify-multer
-//https://github.com/Shulammite-Aso/fastify-file-upload
+server.get("/health", async (request, reply) => {
+  return { status: "ok" };
+});
 
 export const startServer = async () => {
   try {
-    server.listen({ port: 3000 }, (err, address) => {
+    server.listen({ port: config.port, host: "0.0.0.0" }, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);

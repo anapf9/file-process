@@ -15,7 +15,7 @@ export class MapperApplicationToDomain {
 
     const order = new OrderBuilder()
       .setOrderId(user.order_id)
-      .setTotal(user.total)
+      .setTotal(user.value)
       .setDate(new Date(user.date))
       .addProduct(product)
       .build();
