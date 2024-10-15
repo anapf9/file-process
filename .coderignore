@@ -1,0 +1,10 @@
+# .coderignore
+# You may customize this file using the .gitignore syntax.
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+dist/
+build/

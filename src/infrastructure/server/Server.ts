@@ -1,14 +1,18 @@
 import fastify from "fastify";
 import { config } from "../config/config";
-import { fileRoutes } from "../../application/controllers/FileController";
-import { orderRoutes } from "../../application/controllers/OrderController";
+import { FileRoutes } from "../../application/controllers/FileController";
+import { OrderRoutes } from "../../application/controllers/OrderController";
 import multipart from "@fastify/multipart";
 
 const server = fastify({ logger: true });
 
 server.register(multipart);
-server.register(fileRoutes);
-server.register(orderRoutes);
+
+const fileRoutes = new FileRoutes();
+const orderRoutes = new OrderRoutes();
+
+fileRoutes.registerRoutes(server);
+orderRoutes.registerRoutes(server);
 
 server.get('/health', async (request, reply) => {
   return { status: 'ok' };

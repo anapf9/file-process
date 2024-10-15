@@ -6,7 +6,6 @@ import {
   UserOrderBuilder,
 } from "../../domain/entities/OrderBuilder";
 import { IOrderOperations } from "../../domain/interfaces/DBOperationsPort";
-import { Model } from "mongoose";
 
 export class OrderRepository implements IOrderOperations {
   async findByUserId(user_id: number): Promise<UserOrder | null> {
@@ -58,7 +57,7 @@ export class OrderRepository implements IOrderOperations {
         },
       ]);
 
-      return results;
+      return results.map((result) => this.mapperModelToDomain(result));
     } catch (error) {
       console.error("Erro ao buscar pedidos:", error);
       throw error;
@@ -70,22 +69,17 @@ export class OrderRepository implements IOrderOperations {
       .setUserId(model.user_id)
       .setName(model.name);
 
-    model.orders.forEach((order) => userMapped.addOrder(order));
-
-    // const mapped = model.orders.map((order) => {
-    //   new OrderBuilder()
-    //     .setOrderId(order.order_id)
-    //     .setTotal(order.total)
-    //     .setDate(new Date(order.date))
-    //     .build();
-
-    //   order.products.forEach((product) =>
-    //     new ProductBuilder()
-    //       .setProductId(product.product_id)
-    //       .setValue(product.value)
-    //       .build()
-    //   );
-    // });
+    model.orders.forEach((order) =>
+      userMapped.addOrder({
+        order_id: order.order_id,
+        total: order.total,
+        date: order.date,
+        products: order.products.map((product) => ({
+          product_id: product.product_id,
+          value: product.value,
+        })),
+      })
+    );
 
     return userMapped.build();
   }

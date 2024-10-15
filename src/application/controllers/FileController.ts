@@ -1,13 +1,21 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fs from "fs";
 import path from "path";
 import { FileService } from "../services/file/FileService";
 import { Container } from "typescript-ioc";
 
-const fileService: FileService = Container.get(FileService);
+export class FileRoutes {
+  private readonly fileService: FileService;
 
-export const fileRoutes = async (server: FastifyInstance) => {
-  server.post("/upload", async (request, reply) => {
+  constructor() {
+    this.fileService = Container.get(FileService);
+  }
+
+  public async registerRoutes(server: FastifyInstance) {
+    server.post("/upload", this.uploadFile.bind(this));
+  }
+
+  private async uploadFile(request: FastifyRequest, reply: FastifyReply) {
     try {
       // Obtém o arquivo da requisição
       const data = await request.file();
@@ -43,7 +51,7 @@ export const fileRoutes = async (server: FastifyInstance) => {
       });
 
       // Processa o arquivo após a escrita completa
-      await fileService.execute(uploadPath);
+      await this.fileService.execute(uploadPath);
 
       // Retorna uma resposta de sucesso
       reply
@@ -54,5 +62,5 @@ export const fileRoutes = async (server: FastifyInstance) => {
       console.error(error);
       reply.code(500).send({ error: "Erro ao processar o arquivo" });
     }
-  });
-};
+  }
+}
