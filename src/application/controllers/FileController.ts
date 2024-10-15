@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import fs from "fs";
 import path from "path";
-import { FileService } from "../services/FileService";
+import { FileService } from "../services/file/FileService";
 import { Container } from "typescript-ioc";
 
 const fileService: FileService = Container.get(FileService);
@@ -43,7 +43,7 @@ export const fileRoutes = async (server: FastifyInstance) => {
       });
 
       // Processa o arquivo após a escrita completa
-      await fileService.processFile(uploadPath);
+      await fileService.execute(uploadPath);
 
       // Retorna uma resposta de sucesso
       reply

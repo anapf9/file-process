@@ -10,7 +10,7 @@ export interface QueryStringRequestDTO {
   last_date?: string;
 }
 
-export const orderRoutes = async (server: FastifyInstance) => {
+export const orderRoutes = async (server: FastifyInstance): Promise<void> => {
   server.get(
     "/orders",
     async (

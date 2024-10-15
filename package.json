@@ -6,6 +6,7 @@
     "start": "ts-node-dev src/main.ts",
     "build": "tsc -p tsconfig.json",
     "prd": "tsx watch dist/main.js",
+    "test": "jest",
     "docker": "CURRENT_UID=$(id -u):$(id -g) docker-compose up -d"
   },
   "dependencies": {
@@ -18,8 +19,12 @@
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
+    "@types/jest": "^29.2.3",
     "@types/node": "^22.7.4",
+    "jest": "^29.2.3",
+    "jest-mock-extended": "^4.0.0-beta1",
     "rimraf": "^3.0.2",
+    "ts-jest": "^29.2.3",
     "ts-node-dev": "^1.1.8",
     "tsx": "^4.19.1",
     "typescript": "^5.0.0"

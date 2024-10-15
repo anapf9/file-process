@@ -10,13 +10,13 @@ server.register(multipart);
 server.register(fileRoutes);
 server.register(orderRoutes);
 
-server.get("/health", async (request, reply) => {
-  return { status: "ok" };
+server.get('/health', async (request, reply) => {
+  return { status: 'ok' };
 });
 
 export const startServer = async () => {
   try {
-    server.listen({ port: config.port, host: "0.0.0.0" }, (err, address) => {
+    server.listen({ port: config.port, host: '0.0.0.0' }, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);

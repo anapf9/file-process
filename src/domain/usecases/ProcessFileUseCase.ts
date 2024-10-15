@@ -1,6 +1,6 @@
 import { Inject } from "typescript-ioc";
 import { OrderRepository } from "../../infrastructure/repository/OrderRepository";
-import { UserOrderDTO } from "../../application/services/FileService";
+import { UserOrderDTO } from "../../application/services/file/FileService";
 import {
   ProductBuilder,
   OrderBuilder,

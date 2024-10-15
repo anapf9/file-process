@@ -1,8 +1,9 @@
 import fs from "fs";
 import readline from "readline";
-import { ProcessFileUseCase } from "../../domain/usecases/ProcessFileUseCase";
-import { Container } from "typescript-ioc";
-import { IProcessFileUseCase } from "../../domain/interfaces/usecases/IProcessFileUsecase";
+import { ProcessFileUseCase } from "../../../domain/usecases/ProcessFileUseCase";
+import { Container, Inject } from "typescript-ioc";
+import { IProcessFileUseCase } from "../../../domain/interfaces/usecases/IProcessFileUsecase";
+import { IFileService } from "./IFileService.interface";
 
 export interface UserOrderDTO {
   user_id: number;
@@ -13,11 +14,15 @@ export interface UserOrderDTO {
   value: string;
 }
 
-export class FileService {
-  private readonly processFileUseCase: ProcessFileUseCase =
+export class FileService implements IFileService {
+  // constructor(
+  //   @Inject
+  //   private readonly processFileUseCase: IProcessFileUseCase
+  // ) {}
+  private readonly processFileUseCase: IProcessFileUseCase =
     Container.get(ProcessFileUseCase);
 
-  async processFile(filePath: string): Promise<void> {
+  async execute(filePath: string): Promise<void> {
     let contadorLinhas = 0;
 
     const rl = readline.createInterface({
@@ -39,7 +44,7 @@ export class FileService {
       await this.processFileUseCase.execute(registro);
     }
 
-    console.log(`Total de linhas processadas: ${contadorLinhas}`); // Exibe o total de linhas processadas
+    console.log(`Total de linhas processadas: ${contadorLinhas}`);
 
     fs.unlinkSync(filePath);
 
