@@ -1,15 +1,16 @@
 import { Inject } from "typescript-ioc";
-import { OrderRepository } from "../../infrastructure/repository/OrderRepository";
-import { UserOrder } from "../../domain/entities/OrderBuilder";
-import { QueryStringRequestDTO } from "../controllers/OrderController";
+import { IOrderRepository } from "../../../domain/interfaces/DBOperationsPort";
+import { UserOrder } from "../../../domain/entities/OrderBuilder";
+import { QueryStringRequestDTO } from "../../controllers/OrderController";
+import { IOrderService } from "./IOrderService.interface";
 
-export class OrderService {
+export class OrderService implements IOrderService {
   constructor(
     @Inject
-    private readonly orderRepository: OrderRepository
+    private readonly orderRepository: IOrderRepository
   ) {}
 
-  async getOrders(filters: QueryStringRequestDTO): Promise<UserOrder[]> {
+  async execute(filters: QueryStringRequestDTO): Promise<UserOrder[]> {
     if (filters.order_id) {
       return this.filterByOrderId(filters.order_id);
     }

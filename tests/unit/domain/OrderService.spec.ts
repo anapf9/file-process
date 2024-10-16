@@ -1,8 +1,8 @@
 import { OrderService } from "./OrderService";
-import { OrderRepository } from "../../infrastructure/repository/OrderRepository";
-import { QueryStringRequestDTO } from "../controllers/OrderController";
+import { OrderRepository } from "../../../infrastructure/repository/OrderRepository";
+import { QueryStringRequestDTO } from "../../controllers/OrderController";
 import { mock } from "jest-mock-extended";
-import { UserOrder } from "../../domain/entities/OrderBuilder";
+import { UserOrder } from "../../../domain/entities/OrderBuilder";
 
 describe("OrderService", () => {
   let orderService: OrderService;

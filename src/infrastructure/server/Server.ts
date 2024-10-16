@@ -3,8 +3,10 @@ import { config } from "../config/config";
 import { FileRoutes } from "../../application/controllers/FileController";
 import { OrderRoutes } from "../../application/controllers/OrderController";
 import multipart from "@fastify/multipart";
+import { Container } from "typescript-ioc";
+import ioc from "../config/ioc";
 
-const server = fastify({ logger: true });
+export const server = fastify({ logger: true });
 
 server.register(multipart);
 
@@ -14,13 +16,15 @@ const orderRoutes = new OrderRoutes();
 fileRoutes.registerRoutes(server);
 orderRoutes.registerRoutes(server);
 
-server.get('/health', async (request, reply) => {
-  return { status: 'ok' };
+Container.configure(...ioc);
+
+server.get("/health", async (request, reply) => {
+  return { status: "ok" };
 });
 
 export const startServer = async () => {
   try {
-    server.listen({ port: config.port, host: '0.0.0.0' }, (err, address) => {
+    server.listen({ port: config.port, host: "0.0.0.0" }, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);

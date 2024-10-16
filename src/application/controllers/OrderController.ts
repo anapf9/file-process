@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { Container } from "typescript-ioc";
-import { OrderService } from "../services/OrderService";
+import { Container, Inject } from "typescript-ioc";
+import { OrderService } from "../services/order/OrderService";
+import { IOrderService } from "../services/order/IOrderService.interface";
 
 export interface QueryStringRequestDTO {
   order_id?: string;
@@ -9,28 +10,39 @@ export interface QueryStringRequestDTO {
 }
 
 export class OrderRoutes {
-  private readonly orderService: OrderService;
+  private orderService: IOrderService;
 
   constructor() {
+    // @Inject
+    // private readonly orderService: IOrderService
     this.orderService = Container.get(OrderService);
   }
 
   public async registerRoutes(server: FastifyInstance): Promise<void> {
-    server.get("/orders", this.getOrders.bind(this));
+    server.get("/orders", this.execute.bind(this));
   }
 
-  private async getOrders(
+  private async execute(
     request: FastifyRequest<{ Querystring: QueryStringRequestDTO }>,
     reply: FastifyReply
   ) {
+    //try {
     const { init_date, last_date, order_id } = request.query;
 
-    const orders = await this.orderService.getOrders({
+    console.log("parei", init_date, last_date, order_id);
+
+    const orders = await this.orderService.execute({
       order_id: order_id && this.validaOrderId(order_id),
       last_date: last_date && this.validarData(last_date),
       init_date: init_date && this.validarData(init_date),
     });
-    reply.send(orders);
+
+    console.log("orders", orders);
+
+    reply.send(orders).status(200);
+    // } catch (error) {
+    //   console.log("err", error);
+    // }
   }
 
   private validarData(data: string): string {

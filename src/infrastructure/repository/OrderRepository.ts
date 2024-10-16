@@ -5,9 +5,9 @@ import {
   UserOrder,
   UserOrderBuilder,
 } from "../../domain/entities/OrderBuilder";
-import { IOrderOperations } from "../../domain/interfaces/DBOperationsPort";
+import { IOrderRepository } from "../../domain/interfaces/DBOperationsPort";
 
-export class OrderRepository implements IOrderOperations {
+export class OrderRepository implements IOrderRepository {
   async findByUserId(user_id: number): Promise<UserOrder | null> {
     return OrderModel.findOne({ user_id }).exec();
   }

@@ -1,7 +1,7 @@
-// IOrderOperations.ts
+// IOrderRepository.ts
 import { UserOrder } from "../entities/OrderBuilder";
 
-export abstract class IOrderOperations {
+export abstract class IOrderRepository {
   abstract findByUserId(user_id: number): Promise<UserOrder | null>;
   abstract save(userOrder: UserOrder): Promise<UserOrder>;
   abstract update(userOrder: UserOrder): Promise<UserOrder | null>;
