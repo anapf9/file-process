@@ -1,15 +1,14 @@
 import fastify, { FastifyInstance } from "fastify";
-import { OrderRoutes } from "../../../src/application/controllers/OrderController";
-import { IOrderService } from "../../../src/application/services/order/IOrderService.interface";
-import { OrderService } from "../../../src/application/services/order/OrderService";
-import { Container } from "typescript-ioc";
-import { UserOrder } from "../../../src/domain/entities/OrderBuilder";
 
-jest.mock("../services/order/OrderService");
+import { Container } from "typescript-ioc";
+import { UserOrder } from "../../../../src/domain/entities/OrderBuilder";
+import { OrderRoutes } from "../../../../src/application/controllers/OrderController";
+import { IGetOrdersUseCase } from "../../../../src/domain/interfaces/usecases/IGetOrdersUsecase";
+import { GetOrdersUseCase } from "../../../../src/domain/usecases/GetOrdersUseCase";
 
 describe("OrderRoutes", () => {
   let serverInstance: FastifyInstance;
-  let orderServiceMock: IOrderService;
+  let orderUsecaseMock: IGetOrdersUseCase;
 
   const orders: UserOrder[] = [
     {
@@ -60,11 +59,11 @@ describe("OrderRoutes", () => {
   ];
 
   beforeEach(async () => {
-    orderServiceMock = {
+    orderUsecaseMock = {
       execute: jest.fn().mockResolvedValue(orders),
     };
 
-    Container.bind(OrderService).factory(() => orderServiceMock);
+    Container.bind(GetOrdersUseCase).factory(() => orderUsecaseMock);
 
     serverInstance = fastify();
 
@@ -88,7 +87,7 @@ describe("OrderRoutes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual(JSON.stringify(orderAppExpect));
-    expect(orderServiceMock.execute).toHaveBeenCalledWith({
+    expect(orderUsecaseMock.execute).toHaveBeenCalledWith({
       order_id: "123",
       init_date: undefined,
       last_date: undefined,
@@ -128,7 +127,7 @@ describe("OrderRoutes", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(orderServiceMock.execute).toHaveBeenCalledWith({
+    expect(orderUsecaseMock.execute).toHaveBeenCalledWith({
       order_id: undefined,
       init_date: "2023-10-01",
       last_date: "2023-10-31",

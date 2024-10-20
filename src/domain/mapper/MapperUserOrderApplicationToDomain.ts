@@ -1,12 +1,12 @@
-import { UserOrderDTO } from "../services/file/FileService";
+import { UserOrderDTO } from "../../application/services/file/FileService";
 import {
   OrderBuilder,
   ProductBuilder,
   UserOrder,
   UserOrderBuilder,
-} from "../../domain/entities/OrderBuilder";
+} from "../entities/OrderBuilder";
 
-export class MapperApplicationToDomain {
+export class MapperUserOrderApplicationToDomain {
   static execute(user: UserOrderDTO): UserOrder {
     const product = new ProductBuilder()
       .setProductId(user.product_id)

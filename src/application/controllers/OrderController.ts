@@ -2,6 +2,8 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Container, Inject } from "typescript-ioc";
 import { OrderService } from "../services/order/OrderService";
 import { IOrderService } from "../services/order/IOrderService.interface";
+import { IGetOrdersUseCase } from "../../domain/interfaces/usecases/IGetOrdersUsecase";
+import { GetOrdersUseCase } from "../../domain/usecases/GetOrdersUseCase";
 
 export interface QueryStringRequestDTO {
   order_id?: string;
@@ -10,12 +12,12 @@ export interface QueryStringRequestDTO {
 }
 
 export class OrderRoutes {
-  private orderService: IOrderService;
+  private orderUsecase: IGetOrdersUseCase;
 
   constructor() {
     // @Inject
     // private readonly orderService: IOrderService
-    this.orderService = Container.get(OrderService);
+    this.orderUsecase = Container.get(GetOrdersUseCase);
   }
 
   public async registerRoutes(server: FastifyInstance): Promise<void> {
@@ -31,7 +33,7 @@ export class OrderRoutes {
 
     console.log("parei", init_date, last_date, order_id);
 
-    const orders = await this.orderService.execute({
+    const orders = await this.orderUsecase.execute({
       order_id: order_id && this.validaOrderId(order_id),
       last_date: last_date && this.validarData(last_date),
       init_date: init_date && this.validarData(init_date),

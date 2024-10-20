@@ -1,7 +1,5 @@
 import { OrderModel, UserOrderDocument } from "../database/models/OrderModel";
 import {
-  OrderBuilder,
-  ProductBuilder,
   UserOrder,
   UserOrderBuilder,
 } from "../../domain/entities/OrderBuilder";
@@ -9,7 +7,8 @@ import { IOrderRepository } from "../../domain/interfaces/DBOperationsPort";
 
 export class OrderRepository implements IOrderRepository {
   async findByUserId(user_id: number): Promise<UserOrder | null> {
-    return OrderModel.findOne({ user_id }).exec();
+    const result = await OrderModel.findOne({ user_id }).exec();
+    return result && this.mapperModelToDomain(result);
   }
 
   async save(userOrder: UserOrder): Promise<UserOrder> {
@@ -29,8 +28,6 @@ export class OrderRepository implements IOrderRepository {
   }
 
   async findOrderID(order_id: number): Promise<UserOrder[]> {
-    console.log("filters", order_id);
-
     const results = await OrderModel.find({
       "orders.order_id": order_id,
     }).exec();

@@ -1,6 +1,6 @@
-import { MapperApplicationToDomain } from "./MapperToDomain";
-import { UserOrderDTO } from "../services/file/FileService";
-import { UserOrder } from "../../domain/entities/OrderBuilder";
+import { MapperUserOrderApplicationToDomain } from "../../../../src/domain/mapper/MapperUserOrderApplicationToDomain";
+import { UserOrderDTO } from "../../../../src/application/services/file/FileService";
+import { UserOrder } from "../../../../src/domain/entities/OrderBuilder";
 
 describe("MapperApplicationToDomain", () => {
   it("should map UserOrderDTO to UserOrder", () => {
@@ -14,7 +14,7 @@ describe("MapperApplicationToDomain", () => {
     };
 
     const userOrder: UserOrder =
-      MapperApplicationToDomain.execute(userOrderDTO);
+      MapperUserOrderApplicationToDomain.execute(userOrderDTO);
 
     expect(userOrder).toEqual({
       user_id: 1,

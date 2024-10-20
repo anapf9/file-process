@@ -2,13 +2,13 @@ import { Inject } from "typescript-ioc";
 import { OrderRepository } from "../../infrastructure/repository/OrderRepository";
 import { UserOrderDTO } from "../../application/services/file/FileService";
 import {
-  ProductBuilder,
   OrderBuilder,
   UserOrderBuilder,
   Order,
   UserOrder,
 } from "../entities/OrderBuilder";
 import { IProcessFileUseCase } from "../interfaces/usecases/IProcessFileUsecase";
+import { MapperUserOrderApplicationToDomain } from "../mapper/MapperUserOrderApplicationToDomain";
 
 export class ProcessFileUseCase implements IProcessFileUseCase {
   constructor(
@@ -22,7 +22,7 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
         userOrder.user_id
       );
 
-      const newRegister = this.mapperToDomain(userOrder);
+      const newRegister = MapperUserOrderApplicationToDomain.execute(userOrder);
 
       if (!existingUserOrder) {
         await this.orderRepository.save(newRegister);
@@ -39,26 +39,6 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
       console.error("Error processing file:", error);
       throw error;
     }
-  }
-
-  private mapperToDomain(user: UserOrderDTO): UserOrder {
-    const product = new ProductBuilder()
-      .setProductId(user.product_id)
-      .setValue(user.value)
-      .build();
-
-    const order = new OrderBuilder()
-      .setOrderId(user.order_id)
-      .setTotal(user.value)
-      .setDate(new Date(user.date))
-      .addProduct(product)
-      .build();
-
-    return new UserOrderBuilder()
-      .setUserId(user.user_id)
-      .setName(user.name)
-      .addOrder(order)
-      .build();
   }
 
   private updateExistingOrder(
