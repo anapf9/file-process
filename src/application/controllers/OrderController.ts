@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Container, Inject } from "typescript-ioc";
-import { OrderService } from "../services/order/OrderService";
-import { IOrderService } from "../services/order/IOrderService.interface";
+
 import { IGetOrdersUseCase } from "../../domain/interfaces/usecases/IGetOrdersUsecase";
 import { GetOrdersUseCase } from "../../domain/usecases/GetOrdersUseCase";
 
@@ -38,8 +37,6 @@ export class OrderRoutes {
       last_date: last_date && this.validarData(last_date),
       init_date: init_date && this.validarData(init_date),
     });
-
-    console.log("orders", orders);
 
     reply.send(orders).status(200);
     // } catch (error) {

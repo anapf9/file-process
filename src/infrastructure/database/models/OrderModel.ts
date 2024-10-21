@@ -33,7 +33,7 @@ const OrderSchema = new Schema<OrderDocument>({
   products: [ProductSchema],
 });
 
-const UserOrderSchema = new Schema<UserOrderDocument>({
+export const UserOrderSchema = new Schema<UserOrderDocument>({
   user_id: { type: Number, required: true, unique: true },
   name: { type: String, required: true },
   orders: [OrderSchema],

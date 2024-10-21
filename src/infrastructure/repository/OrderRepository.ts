@@ -12,10 +12,14 @@ export class OrderRepository implements IOrderRepository {
   }
 
   async save(userOrder: UserOrder): Promise<UserOrder> {
+    console.log("salvei");
+
     return new OrderModel(userOrder).save();
   }
 
   async update(userOrder: UserOrder): Promise<UserOrder | null> {
+    console.log("update");
+
     return OrderModel.findOneAndUpdate(
       { user_id: userOrder.user_id },
       userOrder,

@@ -14,7 +14,7 @@ services:
       MONGO_INITDB_DATABASE: mydatabase
 
   app:
-    image: luiza-labs:latest
+    image: app:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -28,6 +28,17 @@ services:
       - .:/app
     depends_on:
       - mongo
+
+  component-test-runner:
+    image: component-test-runner
+    read_only: true
+    environment:
+      MONGODB_CONNECTION_STRING: "mongodb://admin:password123@mongo:27017/mydatabase?authSource=admin"
+      API_BASE_URL: "http://app:3001"
+    ports:
+      - "5001-5005"
+    depends_on:
+      - app
 
 volumes:
   mongo-data-2:

@@ -35,6 +35,8 @@ export class FileRoutes {
         return;
       }
 
+      console.log("data", data);
+
       // Define o caminho para salvar o arquivo
       const uploadPath = path.join(__dirname, "uploads", data.filename);
 

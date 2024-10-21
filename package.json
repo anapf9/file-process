@@ -6,7 +6,7 @@
     "start": "ts-node-dev src/main.ts",
     "build": "tsc -p tsconfig.json",
     "prd": "tsx watch dist/main.js",
-    "tests": "jest --collectCoverage -w=1 --silent",
+    "tests": "jest --detectOpenHandles --collectCoverage -w=1 --silent",
     "docker": "CURRENT_UID=$(id -u):$(id -g) docker-compose up -d"
   },
   "dependencies": {
@@ -24,6 +24,8 @@
     "@types/supertest": "^6.0.2",
     "jest": "^29.2.3",
     "jest-mock-extended": "^4.0.0-beta1",
+    "mongodb": "^6.3.0",
+    "mongodb-memory-server": "^9.1.6",
     "rimraf": "^3.0.2",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.3",

@@ -34,6 +34,8 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
         newRegister
       );
 
+      console.log("a", JSON.stringify(updatedUserOrder));
+
       await this.orderRepository.update(updatedUserOrder);
     } catch (error) {
       console.error("Error processing file:", error);
