@@ -1,8 +1,8 @@
 import { AfterAll, Before, BeforeAll } from "@cucumber/cucumber";
 import axios from "axios";
 import { MongoClient } from "mongodb";
-import { mongodbClient } from "../adapters/mongodb-connector";
-import { clearCollections } from "../adapters/mongodb-operacoes";
+import { mongodbClient } from "./adapters/mongodb-connector";
+import { clearCollections } from "./adapters/mongodb-operacoes";
 
 BeforeAll({ timeout: 61000 }, async () => {
   const response = await axios.get<string>(

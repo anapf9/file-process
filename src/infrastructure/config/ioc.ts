@@ -3,15 +3,19 @@ import { OrderRepository } from "../repository/OrderRepository";
 import { ProcessFileUseCase } from "../../domain/usecases/ProcessFileUseCase";
 import { GetOrdersUseCase } from "../../domain/usecases/GetOrdersUseCase";
 import { FileService } from "../../application/services/file/FileService";
-import { OrderService } from "../../application/services/order/OrderService";
 import { IProcessFileUseCase } from "../../domain/interfaces/usecases/IProcessFileUsecase";
 import { IOrderRepository } from "../../domain/interfaces/DBOperationsPort";
-import { IOrderService } from "../../application/services/order/IOrderService.interface";
+import { IGetOrdersUseCase } from "../../domain/interfaces/usecases/IGetOrdersUsecase";
+import { IFileService } from "../../application/services/file/IFileService.interface";
 
 Container.bind(IOrderRepository).to(OrderRepository);
 Container.bind(IProcessFileUseCase).to(ProcessFileUseCase);
-Container.bind(GetOrdersUseCase).to(GetOrdersUseCase);
-Container.bind(FileService).to(FileService);
-Container.bind(IOrderService).to(OrderService);
+Container.bind(IGetOrdersUseCase).to(GetOrdersUseCase);
+Container.bind(IFileService).to(FileService);
 
-export default [{ bind: IOrderService, to: OrderService }];
+export default [
+  { bind: IOrderRepository, to: OrderRepository },
+  { bind: IProcessFileUseCase, to: ProcessFileUseCase },
+  { bind: IGetOrdersUseCase, to: GetOrdersUseCase },
+  { bind: IFileService, to: FileService },
+];
