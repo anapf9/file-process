@@ -44,8 +44,6 @@ describe("Testes de integração", () => {
     await server.stop();
     await connection.destroy();
     await serverInstance.close();
-
-    request.
   });
 
   it("1 - Deve fazer o envio do arquivo na rota POST com sucesso", async () => {
