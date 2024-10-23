@@ -1,44 +1,36 @@
 import fastify, { FastifyInstance } from "fastify";
 import supertest, { SuperTest, Test } from "supertest";
 import { OrderRoutes } from "../../src/application/controllers/OrderController";
-
-import { Collection, MongoClient } from "mongodb";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import {
-  UserOrder,
-  UserOrderDocument,
-  UserOrderSchema,
-} from "../../src/infrastructure/database/models/OrderModel";
-import { connect, disconnect, model, Model } from "mongoose";
+import { UserOrder } from "../../src/infrastructure/database/models/OrderModel";
+import { connect, connection, Collection } from "mongoose";
 import { FileRoutes } from "../../src/application/controllers/FileController";
 import multipart from "@fastify/multipart";
+import { Container } from "typescript-ioc";
+import ioc from "../../src/infrastructure/config/ioc";
 
 describe("Testes de integração", () => {
   let serverInstance: FastifyInstance;
   let request: SuperTest<Test>;
   let server: MongoMemoryServer;
-  let client: MongoClient;
   let collection: Collection<UserOrder>;
-  let UserOrderModel: Model<UserOrderDocument>;
 
   beforeAll(async () => {
     // Configuração do banco de dados
     server = await MongoMemoryServer.create();
-    client = new MongoClient(server.getUri());
-    await client.connect();
-    await connect(server.getUri(), { dbName: "dbTest" });
-    collection = await client.db("dbTest").createCollection("userOrders");
-    UserOrderModel = model<UserOrderDocument>(
-      "UserOrderModel",
-      UserOrderSchema
-    );
+    const uri = server.getUri("dbTest");
+    await connect(uri);
+
+    collection = connection.collection("userOrders");
 
     // Configuração do servidor
     serverInstance = fastify();
-    serverInstance.register(multipart); // Registra o plugin multipart
+    serverInstance.register(multipart);
 
     const orderRoutes = new OrderRoutes();
     const fileRoutes = new FileRoutes();
+
+    Container.configure(...ioc);
 
     await fileRoutes.registerRoutes(serverInstance);
     await orderRoutes.registerRoutes(serverInstance);
@@ -48,21 +40,15 @@ describe("Testes de integração", () => {
     await serverInstance.ready();
   });
 
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-  afterEach(async () => {
-    await collection.deleteMany({});
-  });
-
   afterAll(async () => {
-    await disconnect();
-    await client.close();
+    await server.stop();
+    await connection.destroy();
     await serverInstance.close();
+
+    request.
   });
 
-  it("should call orderService.execute with correct parameters", async () => {
+  it("1 - Deve fazer o envio do arquivo na rota POST com sucesso", async () => {
     const response = await request
       .post("/upload")
       .attach("file", "tests/integration/file/teste.txt");
@@ -71,5 +57,97 @@ describe("Testes de integração", () => {
     expect(response.body.message).toBe(
       "Arquivo enviado e processado com sucesso!"
     );
+  });
+
+  it("Deve solicitar o pedido de id 836", async () => {
+    const response = await request.get("/orders").query({ order_id: "836" });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        user_id: 88,
+        name: "Terra Daniel DDS",
+        orders: [
+          {
+            order_id: 836,
+            total: "3655.24",
+            date: "2021-09-09T00:00:00.000Z",
+            products: [
+              { product_id: 1, value: "1756.22" },
+              { product_id: 3, value: "1899.02" },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("Deve retornar os pedidos de filtro por datas", async () => {
+    const response = await request
+      .get("/orders")
+      .query({ last_date: "2021-07-24", init_date: "2021-07-23" });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        user_id: 88,
+        name: "Terra Daniel DDS",
+        orders: [
+          {
+            order_id: 835,
+            total: "2687.26",
+            date: "2021-07-23T00:00:00.000Z",
+            products: [
+              { product_id: 2, value: "987.82" },
+              { product_id: 0, value: "1699.44" },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("Deve retornar todos os pedidos", async () => {
+    const response = await request.get("/orders");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        user_id: 88,
+        name: "Terra Daniel DDS",
+        orders: [
+          {
+            order_id: 836,
+            total: "3655.24",
+            date: "2021-09-09T00:00:00.000Z",
+            products: [
+              {
+                product_id: 1,
+                value: "1756.22",
+              },
+              {
+                product_id: 3,
+                value: "1899.02",
+              },
+            ],
+          },
+          {
+            order_id: 835,
+            total: "2687.26",
+            date: "2021-07-23T00:00:00.000Z",
+            products: [
+              {
+                product_id: 2,
+                value: "987.82",
+              },
+              {
+                product_id: 0,
+                value: "1699.44",
+              },
+            ],
+          },
+        ],
+      },
+    ]);
   });
 });

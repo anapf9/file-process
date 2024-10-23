@@ -9,22 +9,13 @@ Para subir o projeto utilizando Docker, siga os passos abaixo:
 
 1. **Construa e inicie os containers:**
 
-   ```bash
-   docker-compose up -d
-   ```
-
-PS: apesar de ter um container em node, o mesmo não será usado por falta de configurações necessárias para o container ser acessivel.
-Dessa forma subiremos apenas o container do docker, com o comando acima.
+```bash
+npm run docker
+```
 
 2. **Acesse a aplicação:**
 
-Para executar a aplicação, utilize o comando:
-
-```bash
-npm i && npm run start
-```
-
-A aplicação estará disponível em `http://localhost:3000`.
+A aplicação estará disponível em `http://localhost:3001`.
 
 3. **Registros no banco de dados**
 

@@ -6,7 +6,7 @@
     "start": "ts-node-dev src/main.ts",
     "build": "tsc -p tsconfig.json",
     "prd": "tsx watch dist/main.js",
-    "tests": "jest --detectOpenHandles --collectCoverage -w=1 --silent",
+    "tests": "jest --detectOpenHandles --collectCoverage -w=1 --silent --detectOpenHandles",
     "docker": "CURRENT_UID=$(id -u):$(id -g) docker-compose up -d"
   },
   "dependencies": {

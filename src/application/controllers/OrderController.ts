@@ -27,7 +27,6 @@ export class OrderRoutes {
     request: FastifyRequest<{ Querystring: QueryStringRequestDTO }>,
     reply: FastifyReply
   ) {
-    //try {
     const { init_date, last_date, order_id } = request.query;
 
     console.log("parei", init_date, last_date, order_id);
@@ -39,9 +38,6 @@ export class OrderRoutes {
     });
 
     reply.send(orders).status(200);
-    // } catch (error) {
-    //   console.log("err", error);
-    // }
   }
 
   private validarData(data: string): string {

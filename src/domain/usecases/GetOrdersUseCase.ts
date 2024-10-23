@@ -35,10 +35,11 @@ export class GetOrdersUseCase implements IGetOrdersUseCase {
     const usersOrdersFound = await this.orderRepository.findOrderID(
       Number(orderId)
     );
+
     return usersOrdersFound.map((userOrder) => ({
       ...userOrder,
       orders: userOrder.orders.filter(
-        (order) => order.order_id === Number(orderId)
+        (order) => order.order_id == Number(orderId)
       ),
     }));
   }

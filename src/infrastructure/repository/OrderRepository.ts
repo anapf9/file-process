@@ -8,6 +8,9 @@ import { IOrderRepository } from "../../domain/interfaces/DBOperationsPort";
 export class OrderRepository implements IOrderRepository {
   async findByUserId(user_id: number): Promise<UserOrder | null> {
     const result = await OrderModel.findOne({ user_id }).exec();
+
+    console.log("here", result);
+
     return result && this.mapperModelToDomain(result);
   }
 
@@ -28,7 +31,8 @@ export class OrderRepository implements IOrderRepository {
   }
 
   async findAll(): Promise<UserOrder[]> {
-    return await OrderModel.find().exec();
+    const results = await OrderModel.find().exec();
+    return results.map((result) => this.mapperModelToDomain(result));
   }
 
   async findOrderID(order_id: number): Promise<UserOrder[]> {
