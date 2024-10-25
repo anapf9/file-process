@@ -106,6 +106,10 @@ export class UserOrderBuilder {
     this.userOrder.orders.push(order);
     return this;
   }
+  addOrders(orders: Order[]): this {
+    this.userOrder.orders = orders;
+    return this;
+  }
 
   build(): UserOrder {
     return this.userOrder;

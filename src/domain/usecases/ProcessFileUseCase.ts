@@ -36,8 +36,6 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
         userOrder
       );
 
-      console.log("updatedUserOrder", JSON.stringify(updatedUserOrder));
-
       await this.orderRepository.update(updatedUserOrder);
     } catch (error) {
       console.error("Error processing file:", error);
@@ -60,12 +58,12 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
     const existingOrder = existingOrdersMap.get(newUserOrder.order_id);
 
     if (existingOrder) {
-      const [order_id, productToUpdate] = this.handleExistingOrder(
+      const productToUpdate = this.handleExistingOrder(
         existingOrder,
         newUserOrder
       );
 
-      existingOrdersMap.set(order_id, productToUpdate);
+      existingOrdersMap.set(existingOrder.order_id, productToUpdate);
     } else {
       const product = new ProductBuilder()
         .setProductId(newUserOrder.product_id)
@@ -82,9 +80,9 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
       existingOrdersMap.set(newUserOrder.order_id, orderToAdd);
     }
 
-    const [updatedOrders] = [...existingOrdersMap.values()];
+    const updatedOrders = [...existingOrdersMap.values()];
 
-    userOrderToUpdate.addOrder(updatedOrders);
+    userOrderToUpdate.addOrders(updatedOrders);
 
     return userOrderToUpdate.build();
   }
@@ -92,7 +90,7 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
   private handleExistingOrder(
     existingOrder: Order,
     newUserOrder: UserOrderDTO
-  ): [number, Order] {
+  ): Order {
     const existingProductsSet = new Set(
       existingOrder.products.map((product) => product.product_id)
     );
@@ -102,7 +100,7 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
         `Product already exists for product_id ${newUserOrder.product_id} of order ${newUserOrder.order_id}.`
       );
 
-      return [existingOrder.order_id, existingOrder];
+      return existingOrder;
     }
     const product = new ProductBuilder()
       .setProductId(newUserOrder.product_id)
@@ -118,7 +116,7 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
       .addProducts([...existingOrder.products, product])
       .build();
 
-    return [newUserOrder.order_id, productOrderToUpdate];
+    return productOrderToUpdate;
   }
 
   private totalProductsOfOrder(str1: string, str2: string): string {

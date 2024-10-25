@@ -98,7 +98,58 @@ describe("ProcessFileUseCase", () => {
       orders: [
         {
           order_id: 123,
-          total: "200",
+          total: "200.00",
+          date: new Date("2023-10-01T00:00:00.000Z"),
+          products: [{ product_id: 1, value: "100.00" }],
+        },
+      ],
+    });
+  });
+
+  test("should add a new order", async () => {
+    const existingOrder: Order = {
+      order_id: 123,
+      total: "15.00",
+      date: new Date("2023-10-01"),
+      products: [{ product_id: 15, value: "15.00" }],
+    };
+
+    const existingUserOrder: UserOrder = {
+      user_id: 1,
+      name: "John Doe",
+      orders: [existingOrder],
+    };
+
+    mockOrderRepository.findByUserId.mockResolvedValueOnce(existingUserOrder);
+
+    const userOrderToUpdateFixture: UserOrderDTO = {
+      user_id: 1,
+      name: "John Doe",
+      order_id: 456,
+      date: "2023-10-01",
+      product_id: 1,
+      value: "100.00",
+    };
+
+    await processFileUseCase.execute(userOrderToUpdateFixture);
+
+    expect(mockOrderRepository.findByUserId).toHaveBeenCalledWith(
+      userOrderFixture.user_id
+    );
+    expect(mockOrderRepository.save).not.toHaveBeenCalled();
+    expect(mockOrderRepository.update).toHaveBeenCalledWith({
+      user_id: 1,
+      name: "John Doe",
+      orders: [
+        {
+          order_id: 123,
+          total: "15.00",
+          date: new Date("2023-10-01T00:00:00.000Z"),
+          products: [{ product_id: 15, value: "15.00" }],
+        },
+        {
+          order_id: 456,
+          total: "100.00",
           date: new Date("2023-10-01T00:00:00.000Z"),
           products: [{ product_id: 1, value: "100.00" }],
         },
@@ -168,7 +219,7 @@ describe("ProcessFileUseCase", () => {
       orders: [
         {
           order_id: 123,
-          total: "200",
+          total: "200.00",
           date: new Date("2023-10-01T00:00:00.000Z"),
           products: [
             { product_id: 2, value: "100.00" },
