@@ -2,10 +2,11 @@ import { Inject } from "typescript-ioc";
 import { OrderRepository } from "../../infrastructure/repository/OrderRepository";
 import { UserOrderDTO } from "../../application/services/file/FileService";
 import {
-  OrderBuilder,
   UserOrderBuilder,
-  Order,
   UserOrder,
+  Order,
+  OrderBuilder,
+  ProductBuilder,
 } from "../entities/OrderBuilder";
 import { IProcessFileUseCase } from "../interfaces/usecases/IProcessFileUsecase";
 import { MapperUserOrderApplicationToDomain } from "../mapper/MapperUserOrderApplicationToDomain";
@@ -22,19 +23,20 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
         userOrder.user_id
       );
 
-      const newRegister = MapperUserOrderApplicationToDomain.execute(userOrder);
-
       if (!existingUserOrder) {
+        const newRegister =
+          MapperUserOrderApplicationToDomain.execute(userOrder);
+
         await this.orderRepository.save(newRegister);
         return;
       }
 
       const updatedUserOrder = this.updateExistingOrder(
         existingUserOrder,
-        newRegister
+        userOrder
       );
 
-      console.log("a", JSON.stringify(updatedUserOrder));
+      console.log("updatedUserOrder", JSON.stringify(updatedUserOrder));
 
       await this.orderRepository.update(updatedUserOrder);
     } catch (error) {
@@ -45,58 +47,78 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
 
   private updateExistingOrder(
     existingUserOrder: UserOrder,
-    newUserOrder: UserOrder
+    newUserOrder: UserOrderDTO
   ): UserOrder {
     const userOrderToUpdate = new UserOrderBuilder()
       .setUserId(existingUserOrder.user_id)
       .setName(existingUserOrder.name);
 
-    const updatedOrders = existingUserOrder.orders.map((order) => {
-      if (order.order_id === newUserOrder.orders[0].order_id) {
-        return this.handlerExistingOrder(newUserOrder.orders[0], order);
-      }
-      return order;
-    });
-
-    const newOrder = newUserOrder.orders[0];
-    const orderExists = updatedOrders.some(
-      (order) => order.order_id === newOrder.order_id
+    const existingOrdersMap = new Map(
+      existingUserOrder.orders.map((order) => [order.order_id, order])
     );
 
-    if (!orderExists) {
-      updatedOrders.push(newOrder);
+    const existingOrder = existingOrdersMap.get(newUserOrder.order_id);
+
+    if (existingOrder) {
+      const [order_id, productToUpdate] = this.handleExistingOrder(
+        existingOrder,
+        newUserOrder
+      );
+
+      existingOrdersMap.set(order_id, productToUpdate);
+    } else {
+      const product = new ProductBuilder()
+        .setProductId(newUserOrder.product_id)
+        .setValue(newUserOrder.value)
+        .build();
+
+      const orderToAdd = new OrderBuilder()
+        .setOrderId(newUserOrder.order_id)
+        .setTotal(newUserOrder.value)
+        .setDate(new Date(newUserOrder.date))
+        .addProduct(product)
+        .build();
+
+      existingOrdersMap.set(newUserOrder.order_id, orderToAdd);
     }
 
-    updatedOrders.forEach((order) => userOrderToUpdate.addOrder(order));
+    const [updatedOrders] = [...existingOrdersMap.values()];
+
+    userOrderToUpdate.addOrder(updatedOrders);
 
     return userOrderToUpdate.build();
   }
 
-  private handlerExistingOrder(newOrder: Order, existingOrder: Order): Order {
-    const newProduct = newOrder.products[0];
-    const existingProduct = existingOrder.products.find(
-      (product) => product.product_id === newProduct.product_id
+  private handleExistingOrder(
+    existingOrder: Order,
+    newUserOrder: UserOrderDTO
+  ): [number, Order] {
+    const existingProductsSet = new Set(
+      existingOrder.products.map((product) => product.product_id)
     );
 
-    if (existingProduct) {
+    if (existingProductsSet.has(newUserOrder.product_id)) {
       console.warn(
-        `Product already exists for product_id ${newProduct.product_id} of order ${newOrder.order_id}.`
+        `Product already exists for product_id ${newUserOrder.product_id} of order ${newUserOrder.order_id}.`
       );
-      return existingOrder;
+
+      return [existingOrder.order_id, existingOrder];
     }
-
-    const updatedProducts = [...existingOrder.products, newProduct];
-    const updatedTotal = this.totalProductsOfOrder(
-      existingOrder.total,
-      newProduct.value
-    );
-
-    return new OrderBuilder()
-      .setOrderId(existingOrder.order_id)
-      .setTotal(updatedTotal)
-      .setDate(existingOrder.date)
-      .addProducts(updatedProducts)
+    const product = new ProductBuilder()
+      .setProductId(newUserOrder.product_id)
+      .setValue(newUserOrder.value)
       .build();
+
+    const productOrderToUpdate = new OrderBuilder()
+      .setOrderId(newUserOrder.order_id)
+      .setTotal(
+        this.totalProductsOfOrder(existingOrder.total, newUserOrder.value)
+      )
+      .setDate(new Date(newUserOrder.date))
+      .addProducts([...existingOrder.products, product])
+      .build();
+
+    return [newUserOrder.order_id, productOrderToUpdate];
   }
 
   private totalProductsOfOrder(str1: string, str2: string): string {
@@ -108,6 +130,6 @@ export class ProcessFileUseCase implements IProcessFileUseCase {
     }
 
     const result = num1 + num2;
-    return result.toString();
+    return result.toFixed(2);
   }
 }
